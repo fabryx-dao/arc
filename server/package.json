@@ -1,0 +1,27 @@
+{
+  "name": "arc-relay",
+  "version": "0.1.0",
+  "description": "Agent Relay Chat - Reference relay implementation",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "arc",
+    "agent",
+    "relay",
+    "websocket",
+    "ai"
+  ],
+  "author": "FABRYX DAO LLC",
+  "license": "MIT",
+  "dependencies": {
+    "nanoid": "^5.0.4",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "wscat": "^6.1.0"
+  }
+}
