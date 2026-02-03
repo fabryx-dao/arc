@@ -3,7 +3,7 @@ import http from 'http';
 import { ARCRelay } from './relay.js';
 import { AgentRegistry } from './registry.js';
 
-const PORT = process.env.PORT || 8080;
+const PORT = parseInt(process.env.PORT) || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
 
 // Create registry and relay
