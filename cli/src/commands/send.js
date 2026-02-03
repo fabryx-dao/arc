@@ -20,7 +20,7 @@ export async function sendCommand(payload, options) {
     await client.connect();
     
     console.log(chalk.green('✓ Connected'));
-    console.log(chalk.dim(`Agent ID: ${token}`));
+    console.log(chalk.dim(`Agent ID: ${client.agentId}`));
     console.log();
 
     // Parse payload (could be JSON or plain text)

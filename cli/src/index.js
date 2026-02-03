@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import { registerCommand } from './commands/register.js';
 import { sendCommand } from './commands/send.js';
 import { pingCommand } from './commands/ping.js';
 import chalk from 'chalk';
@@ -11,6 +12,13 @@ program
   .name('arc')
   .description('Agent Relay Chat - CLI client for agent-to-agent communication')
   .version('0.1.0');
+
+// Register command
+program
+  .command('register [agent-id]')
+  .description('Register and obtain a token (agent-id is optional, relay will assign if omitted)')
+  .option('-r, --relay <url>', 'Relay URL', 'ws://localhost:8080/arc')
+  .action(registerCommand);
 
 // Send command
 program

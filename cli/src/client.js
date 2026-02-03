@@ -8,7 +8,7 @@ export class ARCClient {
     this.relayUrl = relayUrl;
     this.token = token;
     this.ws = null;
-    this.agentId = token; // For Phase 2, token IS the agent ID
+    this.agentId = null; // Will be set from welcome message
   }
 
   /**
@@ -31,6 +31,8 @@ export class ARCClient {
       this.ws.on('message', (data) => {
         const msg = JSON.parse(data.toString());
         if (msg.type === 'welcome') {
+          // Extract our agent ID from the welcome message 'to' field
+          this.agentId = msg.to?.[0] || 'unknown';
           clearTimeout(timeout);
           resolve(msg);
         }
@@ -66,7 +68,6 @@ export class ARCClient {
    */
   async broadcast(payload, type = null) {
     const msg = {
-      from: this.agentId,
       to: ['*'],
       payload
     };

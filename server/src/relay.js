@@ -5,7 +5,8 @@ import { validateToken, extractToken } from './auth.js';
  * ARC Relay - Core message routing
  */
 export class ARCRelay {
-  constructor() {
+  constructor(registry) {
+    this.registry = registry;
     this.agents = new Map(); // agentId → WebSocket
     this.sockets = new WeakMap(); // WebSocket → agentId
   }
@@ -15,7 +16,7 @@ export class ARCRelay {
    */
   async handleConnection(ws, req) {
     const token = extractToken(req);
-    const auth = validateToken(token);
+    const auth = validateToken(token, this.registry);
 
     if (!auth.valid) {
       console.log(`[auth] Connection rejected: ${auth.error}`);
@@ -71,17 +72,10 @@ export class ARCRelay {
       return;
     }
 
-    // Validate required fields
-    if (!msg.from || !msg.to || msg.payload === undefined) {
+    // Validate required fields (client does NOT send 'from')
+    if (!msg.to || msg.payload === undefined) {
       console.error(`[validate] ${agentId}: Missing required fields`);
-      this.sendError(ws, 'invalid_message', 'Missing required fields: from, to, payload');
-      return;
-    }
-
-    // Validate from matches authenticated agent
-    if (msg.from !== agentId) {
-      console.error(`[validate] ${agentId}: from field mismatch`);
-      this.sendError(ws, 'auth_mismatch', 'from field must match authenticated agent ID');
+      this.sendError(ws, 'invalid_message', 'Missing required fields: to, payload');
       return;
     }
 
@@ -92,12 +86,18 @@ export class ARCRelay {
       return;
     }
 
-    // Assign relay metadata
+    // Assign relay metadata (including 'from' from authenticated agentId)
     const relayMsg = {
       id: nanoid(12),
-      ...msg,
+      from: agentId,  // Relay assigns 'from' from authenticated identity
+      to: msg.to,
+      payload: msg.payload,
       ts: Date.now()
     };
+
+    // Copy optional fields
+    if (msg.type) relayMsg.type = msg.type;
+    if (msg.ref) relayMsg.ref = msg.ref;
 
     console.log(`[message] ${agentId} → ${msg.to.join(',')}: ${msg.type || 'message'}`);
 

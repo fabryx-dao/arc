@@ -1,23 +1,19 @@
 /**
- * Simple token-based authentication
- * 
- * For Phase 1: Any token that looks like "agent-*" is valid
- * Future: JWT validation, token database, etc.
+ * Token-based authentication using registry
  */
 
-export function validateToken(token) {
+export function validateToken(token, registry) {
   if (!token) {
     return { valid: false, error: 'Missing token' };
   }
 
-  // Phase 1: Accept any token that matches pattern "agent-*"
-  // This is intentionally permissive for testing
-  if (token.startsWith('agent-')) {
-    const agentId = token;
-    return { valid: true, agentId };
+  const agentId = registry.getAgentId(token);
+  
+  if (!agentId) {
+    return { valid: false, error: 'Invalid or unregistered token' };
   }
 
-  return { valid: false, error: 'Invalid token format' };
+  return { valid: true, agentId };
 }
 
 /**

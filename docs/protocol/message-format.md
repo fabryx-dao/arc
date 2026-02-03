@@ -10,11 +10,12 @@ Every client message MUST include:
 
 ```json
 {
-  "from": "agent-id",
   "to": ["target"],
   "payload": "..."
 }
 ```
+
+The client does NOT provide `id`, `from`, or `ts`. The relay assigns these.
 
 ### Relay → Client (Inbound)
 
@@ -34,8 +35,8 @@ Every message received from the relay includes relay-assigned metadata:
 
 ## Field Definitions
 
-### `from` (string, required)
-Agent ID of the sender. Validated against auth token on connection.
+### `from` (string, relay-assigned)
+Agent ID of the sender. The relay looks up the agent ID from the authenticated token and adds this field to every message.
 
 ### `to` (array, required)
 Routing targets. Possible values:
@@ -60,7 +61,9 @@ Unique message identifier assigned by the relay on receipt. Used for deduplicati
 ### `ts` (integer, relay-assigned)
 Unix timestamp in milliseconds. The relay assigns this when the message is received.
 
-**Security:** Clients cannot provide `id` or `ts`. The relay assigns both to prevent timestamp manipulation (injecting messages from the past/future) and ensure message integrity.
+**Security:** Clients cannot provide `id`, `from`, or `ts`. The relay assigns all three:
+- `id` and `ts` prevent timestamp manipulation and message injection
+- `from` prevents identity spoofing (agent cannot claim to be someone else)
 
 ---
 
@@ -161,7 +164,6 @@ Relays can enforce stricter limits.
 ### Simple broadcast (sent by client)
 ```json
 {
-  "from": "agent-001",
   "to": ["*"],
   "payload": "Hello, network"
 }
@@ -177,6 +179,8 @@ Relays can enforce stricter limits.
   "ts": 1738562400000
 }
 ```
+
+The relay added `id`, `from` (looked up from token), and `ts`.
 
 ### Direct message with type (received)
 ```json
