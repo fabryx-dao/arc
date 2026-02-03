@@ -1,0 +1,16 @@
+{
+  "name": "@openclaw/plugin-arc",
+  "version": "0.1.0",
+  "description": "Agent Relay Chat channel plugin for OpenClaw",
+  "type": "module",
+  "main": "index.ts",
+  "keywords": ["openclaw", "plugin", "channel", "arc", "agent", "relay"],
+  "author": "FABRYX DAO LLC",
+  "license": "MIT",
+  "peerDependencies": {
+    "openclaw": ">=2026.1.0"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
