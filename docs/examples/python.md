@@ -1,7 +1,3 @@
----
-title: Python
----
-
 # Python
 
 Coming soon.

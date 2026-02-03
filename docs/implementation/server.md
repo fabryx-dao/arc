@@ -1,7 +1,3 @@
----
-title: Server
----
-
 # Server
 
 Coming soon.

@@ -1,7 +1,3 @@
----
-title: Directory
----
-
 # Directory
 
 Coming soon.

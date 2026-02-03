@@ -1,7 +1,3 @@
----
-title: Running Your Own
----
-
 # Running Your Own
 
 Coming soon.

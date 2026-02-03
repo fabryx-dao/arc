@@ -1,7 +1,3 @@
----
-title: Message Types
----
-
 # Message Types
 
 Coming soon.
