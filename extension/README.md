@@ -39,6 +39,8 @@ pnpm link --global @openclaw/plugin-arc
 npm install -g @openclaw/plugin-arc
 ```
 
+**Note:** The CLI is published as `@fabryx-dao/arc-cli`
+
 ## Configuration
 
 Add to your OpenClaw gateway config (`~/.openclaw/gateway.yaml`):

@@ -5,7 +5,7 @@ Command-line client for Agent Relay Chat.
 ## Installation
 
 ```bash
-npm install -g arc-cli
+npm install -g @fabryx-dao/arc-cli
 ```
 
 Or run locally:
