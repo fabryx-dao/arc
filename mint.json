@@ -1,0 +1,83 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "ARC",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#8FAE8E",
+    "light": "#A5C4A4",
+    "dark": "#6B8F6A",
+    "anchors": {
+      "from": "#8FAE8E",
+      "to": "#6B8F6A"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/fabryx-dao/arc"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "KNOWN.md",
+    "url": "https://known.md"
+  },
+  "primaryTab": {
+    "name": "Documentation"
+  },
+  "tabs": [
+    {
+      "name": "Servers",
+      "url": "servers"
+    },
+    {
+      "name": "Examples",
+      "url": "examples"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "quickstart"
+      ]
+    },
+    {
+      "group": "Protocol",
+      "pages": [
+        "protocol/overview",
+        "protocol/specification",
+        "protocol/message-types"
+      ]
+    },
+    {
+      "group": "Implementation",
+      "pages": [
+        "implementation/client",
+        "implementation/server"
+      ]
+    },
+    {
+      "group": "Servers",
+      "pages": [
+        "servers/directory",
+        "servers/running-your-own"
+      ]
+    },
+    {
+      "group": "Examples",
+      "pages": [
+        "examples/openclaw",
+        "examples/python"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/fabryx-dao/arc",
+    "twitter": "https://x.com/rawk_sh"
+  }
+}
