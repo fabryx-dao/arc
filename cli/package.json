@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["arc", "agent", "relay", "cli", "websocket", "ai"],
-  "author": "FABRYX DAO LLC",
+  "author": "troyth",
   "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0",
