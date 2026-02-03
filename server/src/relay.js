@@ -9,6 +9,7 @@ export class ARCRelay {
     this.registry = registry;
     this.agents = new Map(); // agentId → WebSocket
     this.sockets = new WeakMap(); // WebSocket → agentId
+    this.subscriptions = new Map(); // agentId → Set<subscriberAgentId>
   }
 
   /**
@@ -40,7 +41,7 @@ export class ARCRelay {
       payload: {
         relay: 'free.agentrelay.chat',
         version: '0.1.0',
-        capabilities: ['broadcast', 'direct'],
+        capabilities: ['broadcast', 'direct', 'subscribe'],
         extensions: []
       },
       ts: Date.now()
@@ -111,15 +112,187 @@ export class ARCRelay {
   routeMessage(msg, senderId) {
     const targets = msg.to;
 
-    // Broadcast to all
-    if (targets.includes('*')) {
-      this.broadcast(msg, senderId);
+    // Special handling for relay commands
+    if (targets.includes('relay')) {
+      this.handleRelayCommand(msg, senderId);
       return;
     }
 
-    // Direct messages (Phase 3)
-    // For Phase 1, we only support broadcast
-    console.warn(`[route] Direct messaging not yet implemented`);
+    // Broadcast to all
+    if (targets.includes('*')) {
+      this.broadcast(msg, senderId);
+      
+      // Also deliver to subscribers of the sender
+      this.deliverToSubscribers(msg, senderId);
+      return;
+    }
+
+    // Direct messages to specific agents
+    this.directMessage(msg, targets, senderId);
+  }
+
+  /**
+   * Handle relay commands (subscribe, unsubscribe, etc.)
+   */
+  handleRelayCommand(msg, senderId) {
+    const type = msg.type;
+
+    if (type === 'subscribe') {
+      this.handleSubscribe(msg, senderId);
+    } else if (type === 'unsubscribe') {
+      this.handleUnsubscribe(msg, senderId);
+    } else if (type === 'list_subscriptions') {
+      this.handleListSubscriptions(senderId);
+    } else {
+      console.warn(`[relay] Unknown command: ${type}`);
+    }
+  }
+
+  /**
+   * Handle subscribe request
+   */
+  handleSubscribe(msg, senderId) {
+    const agents = msg.payload?.agents;
+    
+    if (!Array.isArray(agents)) {
+      console.error(`[subscribe] ${senderId}: Invalid payload format`);
+      return;
+    }
+
+    let subscribed = 0;
+    for (const targetId of agents) {
+      if (!this.subscriptions.has(targetId)) {
+        this.subscriptions.set(targetId, new Set());
+      }
+      this.subscriptions.get(targetId).add(senderId);
+      subscribed++;
+    }
+
+    console.log(`[subscribe] ${senderId} → ${agents.join(', ')}`);
+
+    // Send confirmation
+    const ws = this.agents.get(senderId);
+    if (ws) {
+      this.sendToAgent(ws, {
+        id: nanoid(12),
+        from: 'relay',
+        to: [senderId],
+        type: 'subscribed',
+        payload: { agents, count: subscribed },
+        ts: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Handle unsubscribe request
+   */
+  handleUnsubscribe(msg, senderId) {
+    const agents = msg.payload?.agents;
+    
+    if (!Array.isArray(agents)) {
+      console.error(`[unsubscribe] ${senderId}: Invalid payload format`);
+      return;
+    }
+
+    let unsubscribed = 0;
+    for (const targetId of agents) {
+      const subscribers = this.subscriptions.get(targetId);
+      if (subscribers) {
+        subscribers.delete(senderId);
+        if (subscribers.size === 0) {
+          this.subscriptions.delete(targetId);
+        }
+        unsubscribed++;
+      }
+    }
+
+    console.log(`[unsubscribe] ${senderId} × ${agents.join(', ')}`);
+
+    // Send confirmation
+    const ws = this.agents.get(senderId);
+    if (ws) {
+      this.sendToAgent(ws, {
+        id: nanoid(12),
+        from: 'relay',
+        to: [senderId],
+        type: 'unsubscribed',
+        payload: { agents, count: unsubscribed },
+        ts: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Handle list subscriptions request
+   */
+  handleListSubscriptions(senderId) {
+    const subscribedTo = [];
+    
+    // Find all agents this sender is subscribed to
+    for (const [agentId, subscribers] of this.subscriptions.entries()) {
+      if (subscribers.has(senderId)) {
+        subscribedTo.push(agentId);
+      }
+    }
+
+    console.log(`[list_subscriptions] ${senderId}: ${subscribedTo.length} subscriptions`);
+
+    // Send response
+    const ws = this.agents.get(senderId);
+    if (ws) {
+      this.sendToAgent(ws, {
+        id: nanoid(12),
+        from: 'relay',
+        to: [senderId],
+        type: 'subscriptions',
+        payload: { agents: subscribedTo },
+        ts: Date.now()
+      });
+    }
+  }
+
+  /**
+   * Deliver message to subscribers of sender
+   */
+  deliverToSubscribers(msg, senderId) {
+    const subscribers = this.subscriptions.get(senderId);
+    if (!subscribers || subscribers.size === 0) {
+      return;
+    }
+
+    let delivered = 0;
+    for (const subscriberId of subscribers) {
+      const ws = this.agents.get(subscriberId);
+      if (ws && ws.readyState === 1) {
+        this.sendToAgent(ws, msg);
+        delivered++;
+      }
+    }
+
+    if (delivered > 0) {
+      console.log(`[subscribers] Delivered to ${delivered} subscribers of ${senderId}`);
+    }
+  }
+
+  /**
+   * Send direct message to specific agents
+   */
+  directMessage(msg, targets, senderId) {
+    let delivered = 0;
+    let notFound = [];
+
+    for (const targetId of targets) {
+      const ws = this.agents.get(targetId);
+      if (ws && ws.readyState === 1) {
+        this.sendToAgent(ws, msg);
+        delivered++;
+      } else {
+        notFound.push(targetId);
+      }
+    }
+
+    console.log(`[direct] ${senderId} → ${targets.join(', ')}: ${delivered} delivered, ${notFound.length} not connected`);
   }
 
   /**
@@ -168,16 +341,39 @@ export class ARCRelay {
       console.log(`[disconnect] ${agentId}`);
       this.agents.delete(agentId);
       this.sockets.delete(ws);
+      
+      // Clean up subscriptions
+      this.cleanupSubscriptions(agentId);
     }
+  }
+
+  /**
+   * Clean up subscriptions for disconnected agent
+   */
+  cleanupSubscriptions(agentId) {
+    // Remove as subscriber
+    for (const [targetId, subscribers] of this.subscriptions.entries()) {
+      subscribers.delete(agentId);
+      if (subscribers.size === 0) {
+        this.subscriptions.delete(targetId);
+      }
+    }
+
+    // Remove subscriptions to this agent
+    this.subscriptions.delete(agentId);
   }
 
   /**
    * Get relay stats
    */
   getStats() {
+    const subscriptionCount = Array.from(this.subscriptions.values())
+      .reduce((sum, subscribers) => sum + subscribers.size, 0);
+
     return {
       connected: this.agents.size,
-      agents: Array.from(this.agents.keys())
+      agents: Array.from(this.agents.keys()),
+      subscriptions: subscriptionCount
     };
   }
 }

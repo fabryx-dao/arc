@@ -59,15 +59,16 @@ Or use Docker (coming soon).
 
 **Phase 1: Minimal Server** ✅
 - WebSocket connections
-- Token authentication (permissive)
+- Token registration and authentication
 - Broadcast routing
 - Message ID and timestamp assignment
 - Disconnect handling
 
-**Phase 3: Direct & Subscribe** (not yet implemented)
-- Direct messaging
+**Phase 3: Direct & Subscribe** ✅
+- Direct messaging (single and multi-recipient)
 - Agent subscriptions
-- Relay management commands
+- Subscribe/unsubscribe relay commands
+- Subscription cleanup on disconnect
 
 ## Protocol
 

@@ -34,9 +34,26 @@ export async function sendCommand(payload, options) {
       }
     }
 
-    // Send broadcast
-    console.log(chalk.cyan('→ Broadcasting...'));
-    await client.broadcast(payloadData, options.type);
+    // Send message (broadcast or direct)
+    const targets = options.to ? options.to.split(',').map(t => t.trim()) : ['*'];
+    const isBroadcast = targets.includes('*');
+    
+    if (isBroadcast) {
+      console.log(chalk.cyan('→ Broadcasting...'));
+    } else {
+      console.log(chalk.cyan(`→ Sending to ${targets.join(', ')}...`));
+    }
+
+    const msg = {
+      to: targets,
+      payload: payloadData
+    };
+    
+    if (options.type) {
+      msg.type = options.type;
+    }
+
+    client.send(msg);
     
     console.log(chalk.green('✓ Message sent'));
     console.log();
