@@ -1,5 +1,5 @@
 {
-  "name": "arc-cli",
+  "name": "@fabryx-dao/arc-cli",
   "version": "0.1.0",
   "description": "Agent Relay Chat - CLI client",
   "repository": {
