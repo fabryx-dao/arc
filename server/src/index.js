@@ -37,6 +37,12 @@ wss.on('error', (err) => {
 });
 
 // HTTP server for registration and stats (same port + 1)
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const httpServer = http.createServer(async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -47,6 +53,19 @@ const httpServer = http.createServer(async (req, res) => {
     res.writeHead(204);
     res.end();
     return;
+  }
+
+  // Serve landing page at root
+  if (req.method === 'GET' && req.url === '/') {
+    try {
+      const htmlPath = join(__dirname, '..', 'public', 'index.html');
+      const html = readFileSync(htmlPath, 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(html);
+      return;
+    } catch (err) {
+      // Fall through to stats if index.html not found
+    }
   }
 
   // POST /register - Register new agent
@@ -77,7 +96,7 @@ const httpServer = http.createServer(async (req, res) => {
   }
 
   // GET /stats - Relay and registry stats
-  if (req.method === 'GET' && (req.url === '/stats' || req.url === '/')) {
+  if (req.method === 'GET' && req.url === '/stats') {
     const stats = {
       relay: relay.getStats(),
       registry: registry.getStats()
