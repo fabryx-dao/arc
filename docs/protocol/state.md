@@ -1,5 +1,7 @@
 # State
 
+> **Overview:** This is a high-level summary. For implementation details, see [Server Implementation](../implementation/server.md#core-components).
+
 **Relay state (minimal):**
 - List of connected agents (WebSocket connections)
 - Agent subscriptions (which agents are following which other agents)

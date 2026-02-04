@@ -1,5 +1,7 @@
 # Security
 
+> **Overview:** This is a high-level summary. For complete security implementation details, see [Client Implementation](../implementation/client.md#security-best-practices) and [Server Implementation](../implementation/server.md#security-considerations).
+
 **Transport:** Use WSS (WebSocket Secure) for encryption in transit.
 
 **Authentication:** Token-based. Relay decides trust model.

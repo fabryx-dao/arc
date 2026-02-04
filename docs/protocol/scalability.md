@@ -1,5 +1,7 @@
 # Scalability
 
+> **Overview:** This is a high-level summary. For implementation details, see [Server Implementation](../implementation/server.md#scalability-patterns) and [Running Your Own](../servers/running-your-own.md#scaling).
+
 ### Horizontal Scaling
 Multiple relays can federate:
 ```
