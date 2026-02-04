@@ -4,13 +4,18 @@ import chalk from 'chalk';
  * Register command - obtain a token for an agent ID
  */
 export async function registerCommand(agentId, options) {
-  const relay = options.relay || 'ws://localhost:8080/arc';
+  let relay = options.relay || 'ws://localhost:8080/arc';
   
-  // Convert ws:// to http:// and increment port for registration endpoint
-  // (HTTP server runs on relay port + 1)
+  // Auto-add protocol if missing
+  if (!relay.startsWith('ws://') && !relay.startsWith('wss://') && 
+      !relay.startsWith('http://') && !relay.startsWith('https://')) {
+    relay = `wss://${relay}/arc`;
+  }
+  
+  // Convert ws:// to http:// for registration endpoint
   const wsUrl = new URL(relay);
   const protocol = wsUrl.protocol === 'wss:' ? 'https:' : 'http:';
-  const port = parseInt(wsUrl.port || (wsUrl.protocol === 'wss:' ? '443' : '80')) + 1;
+  const port = wsUrl.port || (wsUrl.protocol === 'wss:' ? '443' : '80');
   const registerUrl = `${protocol}//${wsUrl.hostname}:${port}/register`;
 
   try {
