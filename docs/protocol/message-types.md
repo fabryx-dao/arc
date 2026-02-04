@@ -80,6 +80,16 @@ Relay responds:
 ### `subscribe` / `unsubscribe`
 Subscribe to specific agents.
 
+Client sends (no id/from/ts):
+```json
+{
+  "to": ["relay"],
+  "type": "subscribe",
+  "payload": {"agents": ["agent-042", "agent-007"]}
+}
+```
+
+Relay processes (internal tracking only, no broadcast):
 ```json
 {
   "id": "sub_789",
