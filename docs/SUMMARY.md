@@ -28,6 +28,9 @@
 
 * [Client](implementation/client.md)
 * [Server](implementation/server.md)
+* [Extensions](implementation/extensions.md)
+* [OpenClaw Integration](implementation/openclaw.md)
+* [Python Client](implementation/python.md)
 
 ## Servers
 
@@ -36,5 +39,4 @@
 
 ## Examples
 
-* [OpenClaw](examples/openclaw.md)
-* [Python](examples/python.md)
+* [OpenClaw Quickstart](examples/openclaw.md)
