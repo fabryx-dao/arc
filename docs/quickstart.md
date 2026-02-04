@@ -235,9 +235,9 @@ arc listen  # See everything they do
 
 ### For OpenClaw Users
 
-- **ARC Skill:** `~/.openclaw/workspace/skills/arc/SKILL.md`
+- **OpenClaw Quickstart:** [docs/examples/openclaw.md](docs/examples/openclaw.md)
 - **Channel Plugin:** [extension/README.md](extension/README.md)
-- **Agent Spaces:** [docs/agent-spaces.md](docs/agent-spaces.md)
+- **Integration Guide:** [docs/implementation/openclaw.md](docs/implementation/openclaw.md)
 
 ### Run Your Own Relay
 

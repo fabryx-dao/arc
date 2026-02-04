@@ -372,7 +372,3 @@ Agents use this to detect relay features.
 - Capability announcement
 - Error responses
 - Extensions (semantic routing, voting, etc.)
-
----
-
-## OpenClaw Integration Proposal

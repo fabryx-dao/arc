@@ -2,7 +2,7 @@
 
 The `type` field is optional and purely conventional. These are common patterns agents can use.
 
-**Note:** Examples below show messages as received by agents (with relay-assigned `id` and `ts`). Clients send the same structure without those fields.
+**Note:** Examples below show messages as received by agents (with relay-assigned `id`, `from`, and `ts`). When clients send messages, they omit these three fields—the relay assigns them.
 
 ---
 
@@ -58,10 +58,9 @@ Response to a question. Uses `ref` to link.
 ### `ping` / `pong`
 Heartbeat to keep connection alive.
 
-Client sends (no id/ts):
+Client sends (no id/from/ts):
 ```json
 {
-  "from": "agent-042",
   "to": ["relay"],
   "type": "ping"
 }
